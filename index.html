@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en"> 
+<head> 
+  <meta charset="UTF-8"> 
+  <title>Chatbot - Google Sheet Data</title> 
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #e8f5e9, #ffffff);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 10px;
+      margin: 0;
+    }
+
+    .chatbox {
+      width: 98%;
+      max-width: 900px;
+      background: #ffffff;
+      border-radius: 25px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-header {
+      background-color: #4CAF50;
+      color: white;
+      padding: 25px;
+      font-size: 2em;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    #chat {
+      padding: 0px;
+    }
+
+    .bot-message {
+      animation: fadeIn 0.8s ease-in-out;
+      background: #f1f8e9;
+      border-left: 6px solid #4CAF50;
+      padding: 25px;
+      margin: 0;
+      white-space: pre-line;
+      font-size: 1.4em;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 600px) {
+      .chat-header {
+        font-size: 1.5em;
+        padding: 15px;
+      }
+      .bot-message {
+        font-size: 1.2em;
+      }
+    }
+  </style> 
+</head> 
+<body> 
+  <div class="chatbox"> 
+    <div class="chat-header">
+      Account Info Chatbot 
+    </div> 
+    <div id="chat"></div> 
+  </div> 
+  <script>
+    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQuyx8v-aSKTjqHOGhsxIGTpg8u6AxDQ3Ikb44xkIymp4x-bB7wc8twPOPadBQ4GIfNVyBhuj8Zj7Ju/pub?output=csv";
+    const chat = document.getElementById('chat');
+
+    function typeEffect(element, text, delay = 30) {
+      element.innerHTML = '';
+      let i = 0;
+      const interval = setInterval(() => {
+        element.innerHTML += text.charAt(i);
+        i++;
+        if (i === text.length) clearInterval(interval);
+      }, delay);
+    }
+
+    async function fetchData(nameToSearch) {
+      try {
+        const res = await fetch(sheetURL);
+        const data = await res.text();
+        const rows = data.split('\n').slice(1);
+
+        let rowIndex = -1;  // Variable to store the row index of the user
+
+        for (let i = 0; i < rows.length; i++) {
+          const cols = rows[i].split(',');
+          const name = cols[1]?.trim().toLowerCase();  // Assuming the name is in the second column
+
+          if (name === nameToSearch.toLowerCase()) {
+            rowIndex = i + 2;  // Since the first row is the header, add 2 to the index
+
+            const timestamp = cols[0]?.trim();
+            const email = cols[2]?.trim();
+            const referBy = cols[3]?.trim();
+            const phone = cols[4]?.trim();
+            const balance = cols[5]?.trim();
+            const level = cols[6]?.trim();
+            const paymentCode = cols[7]?.trim();
+            const withdrawals = cols[8]?.trim();
+            const referID = cols[9]?.trim(); // Assuming this is the 10th column
+
+            const response = `
+Hello ${cols[1]}!
+Here is your account information:
+
+• Timestamp: ${timestamp}
+• Name: ${cols[1]}
+• Email: ${email}
+• Refer by: ${referBy}
+• Phone Number: ${phone}
+• Balance: Rs. ${balance}
+• Level: ${level}
+• Payment Code: ${paymentCode}
+• Withdrawals: Rs. ${withdrawals}
+• Your Refer ID: ${referID}
+
+Note: Your username "${nameToSearch}" is located in row number ${rowIndex} of the Google Sheet.
+            `;
+            const msg = document.createElement('div');
+            msg.className = 'bot-message';
+            chat.appendChild(msg);
+            typeEffect(msg, response, 30);
+            return;
+          }
+        }
+
+        alert("Sorry, your name was not found in the database.");
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }
+
+    window.onload = () => {
+      const userName = prompt("Welcome! Please enter your full name:");
+      if (userName) {
+        fetchData(userName);
+      }
+    };
+  </script> 
+</body>
+</html>
