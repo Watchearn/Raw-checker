@@ -2,7 +2,7 @@
 <html lang="en"> 
 <head> 
   <meta charset="UTF-8"> 
-  <title>Chatbot - Google Sheet Data</title> 
+  <title>Raw checker</title> 
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -126,7 +126,7 @@ Here is your account information:
 • Withdrawals: Rs. ${withdrawals}
 • Your Refer ID: ${referID}
 
-Note: Your username "${nameToSearch}" is located in row number ${rowIndex} of the Google Sheet.
+Note: username "${nameToSearch}"  ${rowIndex} 
             `;
             const msg = document.createElement('div');
             msg.className = 'bot-message';
